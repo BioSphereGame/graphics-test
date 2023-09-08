@@ -1,0 +1,11 @@
+[package]
+name = "vulkna-texture-test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bytemuck = "1"
+ogl33 = { version = "0.2", features = ["debug_error_checks"]}
+ultraviolet = "0.7"
+imagine = "0.0.5"
+beryllium = "0.13.0"
