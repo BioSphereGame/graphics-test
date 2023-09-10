@@ -12,18 +12,23 @@ fn main() {
     let mut window = window::Window::new(1080, 720, "OpenGL Windo-o-ow!");
     window.init_gl();
 
-    let vertices: [f32; 9] = [
-        -0.5, -0.5, 0.0,
-        0.5, -0.5, 0.0,
-        0.0, 0.5, 0.0,
+    let vertices_a: [f32; 9] = [
+        -0.2, -0.2, 0.0,
+        0.0, -0.0, 0.0,
+        0.0, 0.0, 0.0,
     ];
-
-    let vao = gl_wrapper::Vao::new();
+    let vao = gl_wrapper::BufferObject::new(gl::ARRAY_BUFFER, gl::STATIC_DRAW);
     vao.bind();
+    vao.store_f32_data(&vertices_a);
 
+    let vertices_b: [f32; 3 * 3] = [
+        -0.5, -0.5, -1.0,
+        0.5, -0.5, -1.0,
+        0.5, 0.5, -1.0,
+    ];
     let vbo = gl_wrapper::BufferObject::new(gl::ARRAY_BUFFER, gl::STATIC_DRAW);
     vbo.bind();
-    vbo.store_f32_data(&vertices);
+    vbo.store_f32_data(&vertices_b);
 
     let position_attribute = gl_wrapper::VertexAttribute::new(
         0,
@@ -35,11 +40,10 @@ fn main() {
     );
     position_attribute.enable();
 
-    let target_fps: i32 = 60;
-    let us_per_update: u128 = 1000000 / 60;
+    let target_fps: u128 = 60;
+    let us_per_update: u128 = 1000000 / target_fps;
+    let mut time_start = Instant::now();
     while !window.should_close() {
-        let time_start = Instant::now();
-
         unsafe {
             gl::ClearColor(0.0, 0.0, 0.0, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
@@ -50,9 +54,14 @@ fn main() {
         let time_end = Instant::now();
         let elapsed = time_end - time_start;
         let elapsed_micros = elapsed.as_micros();
+        let free: Duration;
         if elapsed_micros < us_per_update {
-            std::thread::sleep(Duration::from_micros((elapsed_micros - us_per_update) as u64));
+            std::thread::sleep(Duration::from_micros((us_per_update - elapsed_micros) as u64));
+            free = Duration::from_micros(us_per_update as u64 - elapsed_micros as u64);
+        } else {
+            free = Duration::from_micros(0);
         }
-        println!("Update: {}us, max: {}us, free: {}us", elapsed_micros, us_per_update as i32, elapsed_micros as i32 - us_per_update as i32);
+        println!("Update: {}us, max: {}us, free: {}us", elapsed_micros, us_per_update as i32, free.as_micros());
+        time_start = Instant::now();
     }
 }
