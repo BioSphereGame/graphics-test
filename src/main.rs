@@ -12,19 +12,10 @@ fn main() {
     let mut window = window::Window::new(1080, 720, "OpenGL Windo-o-ow!");
     window.init_gl();
 
-    let vertices_a: [f32; 9] = [
-        -0.2, -0.2, 0.0,
-        0.0, -0.0, 0.0,
-        0.0, 0.0, 0.0,
-    ];
-    let vao = gl_wrapper::BufferObject::new(gl::ARRAY_BUFFER, gl::STATIC_DRAW);
-    vao.bind();
-    vao.store_f32_data(&vertices_a);
-
     let vertices_b: [f32; 3 * 3] = [
-        -0.5, -0.5, -1.0,
-        0.5, -0.5, -1.0,
-        0.5, 0.5, -1.0,
+        -0.75, -0.75, 0.0,
+        0.75, -0.75, 0.0,
+        0.0, 0.75, 0.0,
     ];
     let vbo = gl_wrapper::BufferObject::new(gl::ARRAY_BUFFER, gl::STATIC_DRAW);
     vbo.bind();
@@ -54,14 +45,11 @@ fn main() {
         let time_end = Instant::now();
         let elapsed = time_end - time_start;
         let elapsed_micros = elapsed.as_micros();
-        let free: Duration;
         if elapsed_micros < us_per_update {
             std::thread::sleep(Duration::from_micros((us_per_update - elapsed_micros) as u64));
-            free = Duration::from_micros(us_per_update as u64 - elapsed_micros as u64);
         } else {
-            free = Duration::from_micros(0);
+            println!("Frame took too long: {} us, from {} us max", elapsed_micros, us_per_update);
         }
-        println!("Update: {}us, max: {}us, free: {}us", elapsed_micros, us_per_update as i32, free.as_micros());
         time_start = Instant::now();
     }
 }

@@ -42,7 +42,8 @@ impl Window {
     fn process_events(&mut self) {
         for (_, event) in glfw::flush_messages(&self.events) {
             match event {
-                glfw::WindowEvent::FramebufferSize(width, height) => {
+                glfw::WindowEvent::FramebufferSize(width, _) => {
+                    let height: i32 = (width / 16) * 9;
                     unsafe { gl::Viewport(0, 0, width, height) }
                 }
                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
